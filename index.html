@@ -1,321 +1,363 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kitoo ERP — Factory Management</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<!-- Modern Icons -->
-<script src="https://unpkg.com/@phosphor-icons/web"></script>
-
-<style>
-:root {
-  --bg: #f4f7f6; 
-  --paper: #ffffff; 
-  --ink: #1a1612; 
-  --accent: #b5451b;
-  --gold: #c9922a; 
-  --muted: #7a6f64; 
-  --line: #e2d9cc; 
-  --soft: #f2ece3;
-  --sidebar-bg: #111111;
-  --sidebar-hover: #222222;
-  --green: #2a6b45; 
-  --red: #c0392b; 
-  --shadow: 0 4px 20px rgba(0,0,0,0.05);
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--ink); display: flex; height: 100vh; overflow: hidden; }
-
-/* ── SCREENS ── */
-#screen-login { display: flex; width: 100%; align-items: center; justify-content: center; background: var(--bg); z-index: 1000; position: fixed; inset: 0; }
-#screen-app { display: none; width: 100%; height: 100vh; }
-.active-screen { display: flex !important; }
-
-/* ── LOGIN ── */
-.login-box { background: var(--paper); padding: 40px; border-radius: 16px; box-shadow: var(--shadow); width: 100%; max-width: 400px; text-align: center; border: 1px solid var(--line); }
-.login-brand { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; color: var(--ink); margin-bottom: 5px; display:flex; align-items:center; justify-content:center; gap:8px; }
-.login-brand i { color: var(--accent); }
-.login-brand span { color: var(--accent); }
-.login-sub { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 30px; }
-.login-input { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid var(--line); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 14px; background: var(--soft); outline: none; transition: 0.2s; }
-.login-input:focus { border-color: var(--accent); }
-.login-btn { width: 100%; background: var(--accent); color: #fff; border: none; padding: 14px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 15px; cursor: pointer; transition: 0.2s; display:flex; align-items:center; justify-content:center; gap:8px; }
-.login-btn:hover { background: #8e2e0f; }
-
-/* ── SIDEBAR ── */
-.sidebar { width: 260px; background: var(--sidebar-bg); color: #fff; display: flex; flex-direction: column; transition: 0.3s; z-index: 100; }
-.sidebar-header { padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 10px; }
-.sidebar-header .brand-icon { color: var(--gold); font-size: 28px; }
-.sidebar-header .brand-text { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; line-height: 1.1; }
-.sidebar-header .brand-text span { color: var(--accent); }
-.sidebar-header .brand-sub { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: #888; }
-
-.nav-menu { padding: 20px 12px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
-.nav-item { padding: 12px 16px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-weight: 500; font-size: 14px; color: #aaa; transition: 0.2s; text-decoration: none; }
-.nav-item i { font-size: 20px; }
-.nav-item:hover { background: var(--sidebar-hover); color: #fff; }
-.nav-item.active { background: var(--accent); color: #fff; box-shadow: 0 4px 12px rgba(181,69,27,0.3); }
-
-.sidebar-footer { padding: 20px 12px; border-top: 1px solid rgba(255,255,255,0.1); }
-.logout-btn { background: rgba(255,0,0,0.1); color: #ffcccc; width: 100%; border: 1px solid rgba(255,0,0,0.2); justify-content: center; }
-.logout-btn:hover { background: rgba(255,0,0,0.3); color: #fff; }
-
-/* ── MAIN CONTENT ── */
-.main-content { flex: 1; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
-
-/* ── TOPBAR ── */
-.topbar { background: var(--paper); height: 70px; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
-.topbar-left { display: flex; align-items: center; gap: 16px; }
-.menu-toggle { display: none; font-size: 24px; cursor: pointer; color: var(--ink); }
-.page-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--ink); }
-
-.topbar-right { display: flex; align-items: center; gap: 20px; }
-.date-display { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--muted); font-weight: 700; background: var(--soft); padding: 6px 12px; border-radius: 6px; }
-.user-profile { display: flex; align-items: center; gap: 10px; }
-.avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--gold)); display: flex; align-items: center; justify-content: center; color: #fff; font-family: 'Playfair Display', serif; font-weight: 700; font-size: 14px; }
-.user-info { display: flex; flex-direction: column; }
-.user-name { font-size: 13px; font-weight: 600; color: var(--ink); line-height: 1.2; }
-.user-role { font-size: 10px; color: var(--muted); }
-
-/* ── MODULES ── */
-.module-container { flex: 1; padding: 32px; overflow-y: auto; }
-.module { display: none; animation: fadeIn 0.3s ease; }
-.module.active { display: block; }
-
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-/* ── DASHBOARD PLACEHOLDER ── */
-.welcome-banner { background: linear-gradient(135deg, var(--ink), #2a241d); padding: 40px; border-radius: 16px; color: #fff; margin-bottom: 24px; position: relative; overflow: hidden; box-shadow: var(--shadow); }
-.welcome-banner h1 { font-family: 'Playfair Display', serif; font-size: 32px; margin-bottom: 8px; }
-.welcome-banner p { font-size: 14px; color: #ccc; max-width: 500px; line-height: 1.6; }
-.banner-icon { position: absolute; right: 40px; top: 50%; transform: translateY(-50%); font-size: 120px; color: rgba(255,255,255,0.05); }
-
-/* TOAST */
-.toast { position: fixed; bottom: 30px; right: 30px; background: var(--ink); color: #fff; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; z-index: 9999; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: translateY(100px); opacity: 0; visibility: hidden; display:flex; align-items:center; gap:8px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);}
-.toast.show { transform: translateY(0); opacity: 1; visibility: visible; }
-
-/* ── RESPONSIVE ── */
-@media (max-width: 768px) {
-  .sidebar { position: fixed; left: -260px; height: 100vh; }
-  .sidebar.mobile-open { left: 0; box-shadow: 10px 0 30px rgba(0,0,0,0.2); }
-  .menu-toggle { display: block; }
-  .topbar { padding: 0 20px; }
-  .date-display, .user-info { display: none; }
-  .module-container { padding: 20px; }
-  .welcome-banner { padding: 24px; }
-  .welcome-banner h1 { font-size: 24px; }
-  .banner-icon { display: none; }
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kitoo Order & Delivery Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Hind Siliguri', sans-serif; background-color: #f3f4f6; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
 </head>
-<body>
+<body class="flex h-screen overflow-hidden">
 
-<!-- ════ LOGIN SCREEN ════ -->
-<div id="screen-login" class="active-screen">
-  <div class="login-box">
-    <div class="login-brand"><i class="ph-fill ph-sneaker"></i> Kitoo <span>ERP</span></div>
-    <div class="login-sub">Factory Management System</div>
-    <input type="email" id="login-email" class="login-input" placeholder="Email Address">
-    <input type="password" id="login-password" class="login-input" placeholder="Password">
-    <button class="login-btn" onclick="handleLogin()"><i class="ph-bold ph-sign-in"></i> Access System</button>
-  </div>
-</div>
-
-<!-- ════ MAIN APP ════ -->
-<div id="screen-app">
-  
-  <!-- SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <i class="ph-fill ph-sneaker brand-icon"></i>
-      <div>
-        <div class="brand-text">Kitoo<span>ERP</span></div>
-        <div class="brand-sub">Factory System</div>
-      </div>
-    </div>
-    
-    <div class="nav-menu">
-      <a class="nav-item active" onclick="switchModule('dashboard', 'Dashboard', this)">
-        <i class="ph-bold ph-squares-four"></i> Dashboard
-      </a>
-      <a class="nav-item" onclick="switchModule('inventory', 'Stock & Inventory', this)">
-        <i class="ph-bold ph-package"></i> Inventory
-      </a>
-      <a class="nav-item" onclick="switchModule('ledger', 'Party Ledger', this)">
-        <i class="ph-bold ph-book-bookmark"></i> Ledger Book
-      </a>
-      <a class="nav-item" onclick="switchModule('expense', 'Daily Expenses', this)">
-        <i class="ph-bold ph-receipt"></i> Expenses
-      </a>
-      <a class="nav-item" onclick="switchModule('payroll', 'Staff Payroll', this)">
-        <i class="ph-bold ph-users-three"></i> Payroll
-      </a>
-      <a class="nav-item" onclick="switchModule('cashbank', 'Cash & Bank', this)">
-        <i class="ph-bold ph-bank"></i> Cash & Bank
-      </a>
-    </div>
-
-    <div class="sidebar-footer">
-      <button class="nav-item logout-btn" onclick="handleLogout()">
-        <i class="ph-bold ph-power"></i> Log Out
-      </button>
-    </div>
-  </aside>
-
-  <!-- MAIN CONTENT -->
-  <main class="main-content">
-    
-    <!-- TOPBAR -->
-    <header class="topbar">
-      <div class="topbar-left">
-        <i class="ph-bold ph-list menu-toggle" onclick="toggleSidebar()"></i>
-        <div class="page-title" id="page-title">Dashboard</div>
-      </div>
-      <div class="topbar-right">
-        <div class="date-display" id="current-date">-- --- ----</div>
-        <div class="user-profile">
-          <div class="user-info">
-            <span class="user-name">Hadiujjaman Maruf</span>
-            <span class="user-role">Administrator</span>
-          </div>
-          <div class="avatar">HM</div>
+    <!-- Login Screen Overlay -->
+    <div id="login-screen" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center transition-opacity duration-500">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-96 text-center">
+            <h1 class="text-3xl font-bold text-orange-500 tracking-wider mb-2">KITOO</h1>
+            <p class="text-gray-500 mb-6 font-semibold">অর্ডার ও ডেলিভারি ম্যানেজমেন্ট</p>
+            <div class="space-y-4 text-left">
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">লগইন আইডি</label>
+                    <input type="text" id="login-id" value="admin" class="w-full border rounded-lg p-3 outline-none focus:ring-2 focus:ring-orange-500">
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">পাসওয়ার্ড</label>
+                    <input type="password" id="login-pass" value="1234" class="w-full border rounded-lg p-3 outline-none focus:ring-2 focus:ring-orange-500">
+                </div>
+                <button onclick="checkLogin()" class="w-full bg-orange-500 text-white font-bold py-3 rounded-lg hover:bg-orange-600 transition shadow-lg mt-4">
+                    লগইন করুন
+                </button>
+                <p class="text-xs text-red-500 text-center mt-2" id="login-error" style="display:none;">আইডি বা পাসওয়ার্ড ভুল!</p>
+            </div>
         </div>
-      </div>
-    </header>
-
-    <!-- MODULES CONTAINER -->
-    <div class="module-container">
-      
-      <!-- MODULE 1: DASHBOARD -->
-      <section id="module-dashboard" class="module active">
-        <div class="welcome-banner">
-          <i class="ph-fill ph-buildings banner-icon"></i>
-          <h1>Welcome back, Hadi! 👋</h1>
-          <p>This is your custom Enterprise Resource Planning (ERP) system for Kitoo Shoes. All your factory data will be synchronized securely in the cloud.</p>
-        </div>
-        <p style="color: var(--muted); text-align: center; margin-top: 50px;">
-          Select a module from the left menu to start building...
-        </p>
-      </section>
-
-      <!-- MODULE 2: INVENTORY -->
-      <section id="module-inventory" class="module">
-        <h2>📦 Inventory Management</h2>
-        <p>Coming soon...</p>
-      </section>
-
-      <!-- MODULE 3: LEDGER -->
-      <section id="module-ledger" class="module">
-        <h2>📓 Party Ledger</h2>
-        <p>Coming soon...</p>
-      </section>
-
-      <!-- MODULE 4: EXPENSE -->
-      <section id="module-expense" class="module">
-        <h2>🧾 Daily Expenses</h2>
-        <p>Coming soon...</p>
-      </section>
-
-      <!-- MODULE 5: PAYROLL -->
-      <section id="module-payroll" class="module">
-        <h2>👥 Staff Payroll</h2>
-        <p>Coming soon...</p>
-      </section>
-
-      <!-- MODULE 6: CASH & BANK -->
-      <section id="module-cashbank" class="module">
-        <h2>🏦 Cash & Bank</h2>
-        <p>Coming soon...</p>
-      </section>
-
     </div>
-  </main>
-</div>
 
-<!-- TOAST -->
-<div class="toast" id="toast"><i class="ph-fill ph-info"></i> <span id="toast-msg"></span></div>
+    <!-- Sidebar -->
+    <aside class="w-64 bg-slate-800 text-white flex flex-col transition-all duration-300">
+        <div class="p-6 text-center border-b border-slate-700">
+            <h1 class="text-2xl font-bold tracking-wider text-orange-400">KITOO</h1>
+            <p class="text-xs text-slate-400">Order & Delivery</p>
+        </div>
+        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+            <button onclick="switchTab('dashboard', this)" class="nav-btn w-full flex items-center gap-3 px-4 py-3 bg-blue-600 rounded-lg text-left">
+                <i class="fa-solid fa-chart-pie w-5"></i> ড্যাশবোর্ড
+            </button>
+            <button onclick="switchTab('new-order', this)" class="nav-btn w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-700 rounded-lg text-left transition">
+                <i class="fa-solid fa-cart-plus w-5"></i> নতুন অর্ডার
+            </button>
+            <button onclick="switchTab('stock', this)" class="nav-btn w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-700 rounded-lg text-left transition text-green-400">
+                <i class="fa-solid fa-boxes-stacked w-5"></i> স্টক ম্যানেজমেন্ট
+            </button>
+            <button onclick="switchTab('delivery-list', this)" class="nav-btn w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-700 rounded-lg text-left transition">
+                <i class="fa-solid fa-truck-fast w-5"></i> ডেলিভারি লিস্ট
+            </button>
+            <button onclick="switchTab('parties', this)" class="nav-btn w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-700 rounded-lg text-left transition">
+                <i class="fa-solid fa-users w-5"></i> পার্টি ও রুট
+            </button>
+        </nav>
+        <div class="p-4 border-t border-slate-700 text-center text-sm text-slate-400">
+            লগড ইন: <span class="font-bold text-white">অ্যাডমিন</span>
+        </div>
+    </aside>
 
-<!-- FIREBASE & LOGIC -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col overflow-y-auto relative">
+        <!-- Topbar -->
+        <header class="bg-white shadow-sm p-4 flex justify-between items-center sticky top-0 z-10">
+            <h2 class="text-xl font-semibold text-gray-800" id="page-title">ড্যাশবোর্ড ওভারভিউ</h2>
+            <div class="flex items-center gap-4">
+                <button onclick="document.getElementById('login-screen').style.display='flex'" class="text-red-500 hover:text-red-700 font-semibold px-4 py-2 rounded-md hover:bg-red-50 transition">
+                    <i class="fa-solid fa-sign-out-alt"></i> লগআউট
+                </button>
+            </div>
+        </header>
 
-  // Using your exact Firebase Config
-  const firebaseConfig = {
-    apiKey: "AIzaSyDqrZ85kxTp9ByuHdTy9R5WCZk44ItOO20",
-    authDomain: "kitoomemo-a767f.firebaseapp.com",
-    projectId: "kitoomemo-a767f",
-    storageBucket: "kitoomemo-a767f.firebasestorage.app",
-    messagingSenderId: "790537793318",
-    appId: "1:790537793318:web:dadc6dce25de68c5dbdbe7"
-  };
+        <div class="p-6">
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-content active space-y-6">
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
+                        <div class="p-3 bg-blue-100 text-blue-600 rounded-lg"><i class="fa-solid fa-box text-2xl"></i></div>
+                        <div><p class="text-gray-500 text-sm">আজকের মোট অর্ডার</p><h3 class="text-2xl font-bold">১২ টি</h3></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
+                        <div class="p-3 bg-purple-100 text-purple-600 rounded-lg"><i class="fa-solid fa-money-bill-wave text-2xl"></i></div>
+                        <div><p class="text-gray-500 text-sm">আজকের কালেকশন</p><h3 class="text-2xl font-bold">৳ ২৫,০০০</h3></div>
+                    </div>
+                </div>
+            </div>
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+            <!-- Stock Management Tab -->
+            <div id="stock" class="tab-content">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Stock Entry Form -->
+                    <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-fit">
+                        <h3 class="text-lg font-semibold mb-4 border-b pb-2"><i class="fa-solid fa-plus-circle text-green-600 mr-2"></i>নতুন স্টক এন্ট্রি</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm text-gray-600 mb-1">মডেল নাম</label>
+                                <input type="text" id="stock-model" placeholder="যেমন: Kitoo-Pro-Black" class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-600 mb-1">ক্যাটাগরি</label>
+                                <select id="stock-category" class="w-full border rounded-lg p-2 outline-none">
+                                    <option>স্যান্ডেল</option>
+                                    <option>সুজ</option>
+                                    <option>স্লিপার</option>
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-1">পরিমাণ</label>
+                                    <input type="number" id="stock-qty" placeholder="0" class="w-full border rounded-lg p-2 outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-1">ইউনিট</label>
+                                    <select id="stock-unit" class="w-full border rounded-lg p-2 outline-none">
+                                        <option>ডজন</option>
+                                        <option>জোড়া</option>
+                                        <option>কার্টন</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 p-3 bg-slate-50 border rounded-lg">
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-1">পারচেজ রেট (৳)</label>
+                                    <input type="number" id="purchase-rate" oninput="calculateProfit()" placeholder="0" class="w-full border rounded-lg p-2 outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-1">সেলস রেট (৳)</label>
+                                    <input type="number" id="sales-rate" oninput="calculateProfit()" placeholder="0" class="w-full border rounded-lg p-2 outline-none">
+                                </div>
+                            </div>
+                            <div class="bg-blue-50 p-3 rounded-lg border border-blue-200 flex justify-between items-center">
+                                <span class="text-sm font-semibold text-blue-800">মোট লাভ:</span>
+                                <span id="profit-display" class="text-lg font-bold text-blue-700">৳ 0</span>
+                            </div>
+                            <button type="button" onclick="addToStock()" class="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition font-semibold mt-2">
+                                স্টকে যুক্ত করুন
+                            </button>
+                        </div>
+                    </div>
 
-  /* --- AUTH LOGIC --- */
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      document.getElementById('screen-login').classList.remove('active-screen');
-      document.getElementById('screen-app').classList.add('active-screen');
-      setCurrentDate();
-    } else {
-      document.getElementById('screen-app').classList.remove('active-screen');
-      document.getElementById('screen-login').classList.add('active-screen');
-    }
-  });
+                    <!-- Current Stock List -->
+                    <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-slate-50">
+                            <h3 class="font-semibold text-gray-800">বর্তমান ইনভেন্টরি</h3>
+                        </div>
+                        <div class="overflow-x-auto p-4">
+                            <table class="w-full text-left text-sm text-gray-600">
+                                <thead class="bg-gray-100 text-gray-700 rounded-lg">
+                                    <tr>
+                                        <th class="px-4 py-2">মডেল</th>
+                                        <th class="px-4 py-2">ক্যাটাগরি</th>
+                                        <th class="px-4 py-2">স্টক আছে</th>
+                                        <th class="px-4 py-2 text-red-600">কেনার রেট</th>
+                                        <th class="px-4 py-2 text-green-600">বিক্রয় রেট</th>
+                                        <th class="px-4 py-2 text-blue-600">লাভ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="stock-table-body">
+                                    <tr class="border-b hover:bg-gray-50">
+                                        <td class="px-4 py-3 font-medium">Kitoo-X1 Black</td>
+                                        <td class="px-4 py-3">স্যান্ডেল</td>
+                                        <td class="px-4 py-3 font-bold text-slate-800">১২ ডজন</td>
+                                        <td class="px-4 py-3 text-red-500">৳ 1200</td>
+                                        <td class="px-4 py-3 text-green-600 font-semibold">৳ 1500</td>
+                                        <td class="px-4 py-3 text-blue-600 font-bold">৳ 300</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-  window.handleLogin = async () => {
-    const email = document.getElementById('login-email').value;
-    const pass = document.getElementById('login-password').value;
-    if(!email || !pass) { showToast('Email & Password required'); return; }
-    try {
-      showToast('Logging in...');
-      await signInWithEmailAndPassword(auth, email, pass);
-    } catch (e) {
-      showToast('Login Failed! Check credentials.');
-    }
-  };
+            <!-- New Order Tab -->
+            <div id="new-order" class="tab-content">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 max-w-4xl">
+                    <h3 class="text-lg font-semibold mb-6 border-b pb-2">নতুন অর্ডার এন্ট্রি করুন</h3>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1">রুট সিলেক্ট করুন</label>
+                            <select class="w-full border rounded-lg p-2 outline-none">
+                                <option>রুট-১ (রাজশাহী মেইন)</option>
+                                <option>রুট-২ (চাঁপাইনবাবগঞ্জ)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1">পার্টি / ডিলার</label>
+                            <select class="w-full border rounded-lg p-2 outline-none">
+                                <option>মায়ের দোয়া সু স্টোর</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="border p-4 rounded-lg bg-gray-50 mt-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <h4 class="text-sm font-semibold text-gray-700">অর্ডার আইটেম (স্টক থেকে সিলেক্ট করুন)</h4>
+                            <button type="button" onclick="addOrderItem()" class="text-xs bg-blue-600 px-3 py-1.5 rounded text-white hover:bg-blue-700 font-semibold shadow-sm">
+                                <i class="fa-solid fa-plus"></i> Add More
+                            </button>
+                        </div>
+                        
+                        <!-- Order Items Container -->
+                        <div id="order-items-container" class="space-y-3">
+                            <div class="grid grid-cols-4 gap-4 items-center">
+                                <div class="col-span-2">
+                                    <label class="block text-xs text-gray-500 mb-1">মডেল</label>
+                                    <select class="w-full border rounded p-2 text-sm outline-none">
+                                        <option>Kitoo-X1 Black (৳1500)</option>
+                                        <option>Comfort-Slippers (৳2450)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-500 mb-1">অর্ডার পরিমাণ</label>
+                                    <input type="number" placeholder="0" class="w-full border rounded p-2 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-500 mb-1">মোট (৳)</label>
+                                    <input type="number" readonly placeholder="0" class="w-full border rounded p-2 text-sm bg-gray-100 cursor-not-allowed">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-  window.handleLogout = async () => { try { await signOut(auth); } catch (e) {} };
+                    <div class="flex justify-between items-center mt-6 pt-4 border-t">
+                        <h4 class="text-xl font-bold text-gray-800">মোট বিল: ৳ 0.00</h4>
+                        <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition font-semibold">
+                            অর্ডার কনফার্ম করুন
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dummy Delivery/Parties Tab -->
+            <div id="delivery-list" class="tab-content"><div class="p-6 bg-white rounded-xl">ডেলিভারি লিস্ট প্যানেল</div></div>
+            <div id="parties" class="tab-content"><div class="p-6 bg-white rounded-xl">পার্টি ও রুট লিস্ট</div></div>
+        </div>
+    </main>
 
-  /* --- SPA NAVIGATION LOGIC --- */
-  window.switchModule = function(moduleId, title, element) {
-    // 1. Hide all modules
-    document.querySelectorAll('.module').forEach(m => m.classList.remove('active'));
-    // 2. Show target module
-    document.getElementById('module-' + moduleId).classList.add('active');
-    
-    // 3. Update topbar title
-    document.getElementById('page-title').textContent = title;
+    <script>
+        // --- লগইন সিস্টেম ---
+        function checkLogin() {
+            const id = document.getElementById('login-id').value;
+            const pass = document.getElementById('login-pass').value;
+            
+            if(id === 'admin' && pass === '1234') {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('login-error').style.display = 'none';
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+            }
+        }
 
-    // 4. Update sidebar active state
-    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-    element.classList.add('active');
+        // --- ট্যাব পরিবর্তনের লজিক ---
+        function switchTab(tabId, btnElement) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            const titles = {
+                'dashboard': 'ড্যাশবোর্ড ওভারভিউ',
+                'new-order': 'নতুন অর্ডার এন্ট্রি',
+                'stock': 'স্টক ও ইনভেন্টরি ম্যানেজমেন্ট',
+                'delivery-list': 'ডেলিভারি লিস্ট',
+                'parties': 'পার্টি ও রুট ম্যানেজমেন্ট'
+            };
+            document.getElementById('page-title').innerText = titles[tabId];
 
-    // 5. Close sidebar on mobile after clicking
-    document.getElementById('sidebar').classList.remove('mobile-open');
-  }
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600');
+                btn.classList.add('hover:bg-slate-700');
+            });
+            btnElement.classList.remove('hover:bg-slate-700');
+            btnElement.classList.add('bg-blue-600');
+        }
 
-  /* --- UI HELPERS --- */
-  window.toggleSidebar = function() {
-    document.getElementById('sidebar').classList.toggle('mobile-open');
-  }
+        // --- প্রফিট ক্যালকুলেটর ---
+        function calculateProfit() {
+            const pRate = parseFloat(document.getElementById('purchase-rate').value) || 0;
+            const sRate = parseFloat(document.getElementById('sales-rate').value) || 0;
+            const profit = sRate - pRate;
+            
+            const display = document.getElementById('profit-display');
+            display.innerText = `৳ ${profit}`;
+            display.className = profit < 0 ? "text-lg font-bold text-red-600" : "text-lg font-bold text-blue-700";
+        }
 
-  function setCurrentDate() {
-    const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
-    document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', options);
-  }
+        // --- স্টকে যুক্ত করার বাটন লজিক ---
+        function addToStock() {
+            const model = document.getElementById('stock-model').value;
+            const cat = document.getElementById('stock-category').value;
+            const qty = document.getElementById('stock-qty').value;
+            const unit = document.getElementById('stock-unit').value;
+            const pRate = document.getElementById('purchase-rate').value;
+            const sRate = document.getElementById('sales-rate').value;
+            
+            if(!model || !qty || !pRate || !sRate) {
+                alert('দয়া করে মডেলের নাম, পরিমাণ এবং রেট বসান!');
+                return;
+            }
 
-  window.showToast = function(msg) {
-    const t = document.getElementById('toast');
-    document.getElementById('toast-msg').textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2500);
-  }
-</script>
+            const profit = sRate - pRate;
+            const tbody = document.getElementById('stock-table-body');
+            
+            // নতুন সারি তৈরি করা
+            const tr = document.createElement('tr');
+            tr.className = 'border-b hover:bg-gray-50';
+            tr.innerHTML = `
+                <td class="px-4 py-3 font-medium text-green-700">${model} <span class="text-xs bg-green-100 text-green-800 px-1 rounded ml-1">New</span></td>
+                <td class="px-4 py-3">${cat}</td>
+                <td class="px-4 py-3 font-bold text-slate-800">${qty} ${unit}</td>
+                <td class="px-4 py-3 text-red-500">৳ ${pRate}</td>
+                <td class="px-4 py-3 text-green-600 font-semibold">৳ ${sRate}</td>
+                <td class="px-4 py-3 text-blue-600 font-bold">৳ ${profit}</td>
+            `;
+            
+            // টেবিলে যুক্ত করা
+            tbody.prepend(tr); 
+            
+            // ইনপুট বক্স ফাঁকা করে দেওয়া
+            document.getElementById('stock-model').value = '';
+            document.getElementById('stock-qty').value = '';
+            document.getElementById('purchase-rate').value = '';
+            document.getElementById('sales-rate').value = '';
+            document.getElementById('profit-display').innerText = '৳ 0';
+            
+            alert('সফলভাবে স্টকে যুক্ত হয়েছে!');
+        }
 
+        // --- Add More বাটনের লজিক ---
+        function addOrderItem() {
+            const container = document.getElementById('order-items-container');
+            const newRow = document.createElement('div');
+            newRow.className = 'grid grid-cols-4 gap-4 items-center mt-3 pt-3 border-t border-dashed border-gray-200';
+            
+            newRow.innerHTML = `
+                <div class="col-span-2">
+                    <select class="w-full border rounded p-2 text-sm outline-none">
+                        <option>Kitoo-X1 Black (৳1500)</option>
+                        <option>Comfort-Slippers (৳2450)</option>
+                    </select>
+                </div>
+                <div>
+                    <input type="number" placeholder="0" class="w-full border rounded p-2 text-sm">
+                </div>
+                <div class="relative">
+                    <input type="number" readonly placeholder="0" class="w-full border rounded p-2 text-sm bg-gray-100 cursor-not-allowed">
+                    <button onclick="this.parentElement.parentElement.remove()" class="absolute -right-6 top-2 text-red-500 hover:text-red-700">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                </div>
+            `;
+            container.appendChild(newRow);
+        }
+    </script>
 </body>
 </html>
