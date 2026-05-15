@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kitoo ERP — Factory Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<!-- Modern Icons -->
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+<style>
+:root {
+  --bg: #f4f7f6; 
+  --paper: #ffffff; 
+  --ink: #1a1612; 
+  --accent: #b5451b;
+  --gold: #c9922a; 
+  --muted: #7a6f64; 
+  --line: #e2d9cc; 
+  --soft: #f2ece3;
+  --sidebar-bg: #111111;
+  --sidebar-hover: #222222;
+  --green: #2a6b45; 
+  --red: #c0392b; 
+  --shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--ink); display: flex; height: 100vh; overflow: hidden; }
+
+/* ── SCREENS ── */
+#screen-login { display: flex; width: 100%; align-items: center; justify-content: center; background: var(--bg); z-index: 1000; position: fixed; inset: 0; }
+#screen-app { display: none; width: 100%; height: 100vh; }
+.active-screen { display: flex !important; }
+
+/* ── LOGIN ── */
+.login-box { background: var(--paper); padding: 40px; border-radius: 16px; box-shadow: var(--shadow); width: 100%; max-width: 400px; text-align: center; border: 1px solid var(--line); }
+.login-brand { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; color: var(--ink); margin-bottom: 5px; display:flex; align-items:center; justify-content:center; gap:8px; }
+.login-brand i { color: var(--accent); }
+.login-brand span { color: var(--accent); }
+.login-sub { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 30px; }
+.login-input { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid var(--line); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 14px; background: var(--soft); outline: none; transition: 0.2s; }
+.login-input:focus { border-color: var(--accent); }
+.login-btn { width: 100%; background: var(--accent); color: #fff; border: none; padding: 14px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 15px; cursor: pointer; transition: 0.2s; display:flex; align-items:center; justify-content:center; gap:8px; }
+.login-btn:hover { background: #8e2e0f; }
+
+/* ── SIDEBAR ── */
+.sidebar { width: 260px; background: var(--sidebar-bg); color: #fff; display: flex; flex-direction: column; transition: 0.3s; z-index: 100; }
+.sidebar-header { padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 10px; }
+.sidebar-header .brand-icon { color: var(--gold); font-size: 28px; }
+.sidebar-header .brand-text { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; line-height: 1.1; }
+.sidebar-header .brand-text span { color: var(--accent); }
+.sidebar-header .brand-sub { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: #888; }
+
+.nav-menu { padding: 20px 12px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+.nav-item { padding: 12px 16px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-weight: 500; font-size: 14px; color: #aaa; transition: 0.2s; text-decoration: none; }
+.nav-item i { font-size: 20px; }
+.nav-item:hover { background: var(--sidebar-hover); color: #fff; }
+.nav-item.active { background: var(--accent); color: #fff; box-shadow: 0 4px 12px rgba(181,69,27,0.3); }
+
+.sidebar-footer { padding: 20px 12px; border-top: 1px solid rgba(255,255,255,0.1); }
+.logout-btn { background: rgba(255,0,0,0.1); color: #ffcccc; width: 100%; border: 1px solid rgba(255,0,0,0.2); justify-content: center; }
+.logout-btn:hover { background: rgba(255,0,0,0.3); color: #fff; }
+
+/* ── MAIN CONTENT ── */
+.main-content { flex: 1; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
+
+/* ── TOPBAR ── */
+.topbar { background: var(--paper); height: 70px; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.topbar-left { display: flex; align-items: center; gap: 16px; }
+.menu-toggle { display: none; font-size: 24px; cursor: pointer; color: var(--ink); }
+.page-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--ink); }
+
+.topbar-right { display: flex; align-items: center; gap: 20px; }
+.date-display { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--muted); font-weight: 700; background: var(--soft); padding: 6px 12px; border-radius: 6px; }
+.user-profile { display: flex; align-items: center; gap: 10px; }
+.avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--gold)); display: flex; align-items: center; justify-content: center; color: #fff; font-family: 'Playfair Display', serif; font-weight: 700; font-size: 14px; }
+.user-info { display: flex; flex-direction: column; }
+.user-name { font-size: 13px; font-weight: 600; color: var(--ink); line-height: 1.2; }
+.user-role { font-size: 10px; color: var(--muted); }
+
+/* ── MODULES ── */
+.module-container { flex: 1; padding: 32px; overflow-y: auto; }
+.module { display: none; animation: fadeIn 0.3s ease; }
+.module.active { display: block; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── DASHBOARD PLACEHOLDER ── */
+.welcome-banner { background: linear-gradient(135deg, var(--ink), #2a241d); padding: 40px; border-radius: 16px; color: #fff; margin-bottom: 24px; position: relative; overflow: hidden; box-shadow: var(--shadow); }
+.welcome-banner h1 { font-family: 'Playfair Display', serif; font-size: 32px; margin-bottom: 8px; }
+.welcome-banner p { font-size: 14px; color: #ccc; max-width: 500px; line-height: 1.6; }
+.banner-icon { position: absolute; right: 40px; top: 50%; transform: translateY(-50%); font-size: 120px; color: rgba(255,255,255,0.05); }
+
+/* TOAST */
+.toast { position: fixed; bottom: 30px; right: 30px; background: var(--ink); color: #fff; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; z-index: 9999; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: translateY(100px); opacity: 0; visibility: hidden; display:flex; align-items:center; gap:8px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);}
+.toast.show { transform: translateY(0); opacity: 1; visibility: visible; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .sidebar { position: fixed; left: -260px; height: 100vh; }
+  .sidebar.mobile-open { left: 0; box-shadow: 10px 0 30px rgba(0,0,0,0.2); }
+  .menu-toggle { display: block; }
+  .topbar { padding: 0 20px; }
+  .date-display, .user-info { display: none; }
+  .module-container { padding: 20px; }
+  .welcome-banner { padding: 24px; }
+  .welcome-banner h1 { font-size: 24px; }
+  .banner-icon { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ════ LOGIN SCREEN ════ -->
+<div id="screen-login" class="active-screen">
+  <div class="login-box">
+    <div class="login-brand"><i class="ph-fill ph-sneaker"></i> Kitoo <span>ERP</span></div>
+    <div class="login-sub">Factory Management System</div>
+    <input type="email" id="login-email" class="login-input" placeholder="Email Address">
+    <input type="password" id="login-password" class="login-input" placeholder="Password">
+    <button class="login-btn" onclick="handleLogin()"><i class="ph-bold ph-sign-in"></i> Access System</button>
+  </div>
+</div>
+
+<!-- ════ MAIN APP ════ -->
+<div id="screen-app">
+  
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <i class="ph-fill ph-sneaker brand-icon"></i>
+      <div>
+        <div class="brand-text">Kitoo<span>ERP</span></div>
+        <div class="brand-sub">Factory System</div>
+      </div>
+    </div>
+    
+    <div class="nav-menu">
+      <a class="nav-item active" onclick="switchModule('dashboard', 'Dashboard', this)">
+        <i class="ph-bold ph-squares-four"></i> Dashboard
+      </a>
+      <a class="nav-item" onclick="switchModule('inventory', 'Stock & Inventory', this)">
+        <i class="ph-bold ph-package"></i> Inventory
+      </a>
+      <a class="nav-item" onclick="switchModule('ledger', 'Party Ledger', this)">
+        <i class="ph-bold ph-book-bookmark"></i> Ledger Book
+      </a>
+      <a class="nav-item" onclick="switchModule('expense', 'Daily Expenses', this)">
+        <i class="ph-bold ph-receipt"></i> Expenses
+      </a>
+      <a class="nav-item" onclick="switchModule('payroll', 'Staff Payroll', this)">
+        <i class="ph-bold ph-users-three"></i> Payroll
+      </a>
+      <a class="nav-item" onclick="switchModule('cashbank', 'Cash & Bank', this)">
+        <i class="ph-bold ph-bank"></i> Cash & Bank
+      </a>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="nav-item logout-btn" onclick="handleLogout()">
+        <i class="ph-bold ph-power"></i> Log Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <i class="ph-bold ph-list menu-toggle" onclick="toggleSidebar()"></i>
+        <div class="page-title" id="page-title">Dashboard</div>
+      </div>
+      <div class="topbar-right">
+        <div class="date-display" id="current-date">-- --- ----</div>
+        <div class="user-profile">
+          <div class="user-info">
+            <span class="user-name">Hadiujjaman Maruf</span>
+            <span class="user-role">Administrator</span>
+          </div>
+          <div class="avatar">HM</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- MODULES CONTAINER -->
+    <div class="module-container">
+      
+      <!-- MODULE 1: DASHBOARD -->
+      <section id="module-dashboard" class="module active">
+        <div class="welcome-banner">
+          <i class="ph-fill ph-buildings banner-icon"></i>
+          <h1>Welcome back, Hadi! 👋</h1>
+          <p>This is your custom Enterprise Resource Planning (ERP) system for Kitoo Shoes. All your factory data will be synchronized securely in the cloud.</p>
+        </div>
+        <p style="color: var(--muted); text-align: center; margin-top: 50px;">
+          Select a module from the left menu to start building...
+        </p>
+      </section>
+
+      <!-- MODULE 2: INVENTORY -->
+      <section id="module-inventory" class="module">
+        <h2>📦 Inventory Management</h2>
+        <p>Coming soon...</p>
+      </section>
+
+      <!-- MODULE 3: LEDGER -->
+      <section id="module-ledger" class="module">
+        <h2>📓 Party Ledger</h2>
+        <p>Coming soon...</p>
+      </section>
+
+      <!-- MODULE 4: EXPENSE -->
+      <section id="module-expense" class="module">
+        <h2>🧾 Daily Expenses</h2>
+        <p>Coming soon...</p>
+      </section>
+
+      <!-- MODULE 5: PAYROLL -->
+      <section id="module-payroll" class="module">
+        <h2>👥 Staff Payroll</h2>
+        <p>Coming soon...</p>
+      </section>
+
+      <!-- MODULE 6: CASH & BANK -->
+      <section id="module-cashbank" class="module">
+        <h2>🏦 Cash & Bank</h2>
+        <p>Coming soon...</p>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><i class="ph-fill ph-info"></i> <span id="toast-msg"></span></div>
+
+<!-- FIREBASE & LOGIC -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+
+  // Using your exact Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyDqrZ85kxTp9ByuHdTy9R5WCZk44ItOO20",
+    authDomain: "kitoomemo-a767f.firebaseapp.com",
+    projectId: "kitoomemo-a767f",
+    storageBucket: "kitoomemo-a767f.firebasestorage.app",
+    messagingSenderId: "790537793318",
+    appId: "1:790537793318:web:dadc6dce25de68c5dbdbe7"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  /* --- AUTH LOGIC --- */
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      document.getElementById('screen-login').classList.remove('active-screen');
+      document.getElementById('screen-app').classList.add('active-screen');
+      setCurrentDate();
+    } else {
+      document.getElementById('screen-app').classList.remove('active-screen');
+      document.getElementById('screen-login').classList.add('active-screen');
+    }
+  });
+
+  window.handleLogin = async () => {
+    const email = document.getElementById('login-email').value;
+    const pass = document.getElementById('login-password').value;
+    if(!email || !pass) { showToast('Email & Password required'); return; }
+    try {
+      showToast('Logging in...');
+      await signInWithEmailAndPassword(auth, email, pass);
+    } catch (e) {
+      showToast('Login Failed! Check credentials.');
+    }
+  };
+
+  window.handleLogout = async () => { try { await signOut(auth); } catch (e) {} };
+
+  /* --- SPA NAVIGATION LOGIC --- */
+  window.switchModule = function(moduleId, title, element) {
+    // 1. Hide all modules
+    document.querySelectorAll('.module').forEach(m => m.classList.remove('active'));
+    // 2. Show target module
+    document.getElementById('module-' + moduleId).classList.add('active');
+    
+    // 3. Update topbar title
+    document.getElementById('page-title').textContent = title;
+
+    // 4. Update sidebar active state
+    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+    element.classList.add('active');
+
+    // 5. Close sidebar on mobile after clicking
+    document.getElementById('sidebar').classList.remove('mobile-open');
+  }
+
+  /* --- UI HELPERS --- */
+  window.toggleSidebar = function() {
+    document.getElementById('sidebar').classList.toggle('mobile-open');
+  }
+
+  function setCurrentDate() {
+    const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+    document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', options);
+  }
+
+  window.showToast = function(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+</script>
+
+</body>
+</html>
